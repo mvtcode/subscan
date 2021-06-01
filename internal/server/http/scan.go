@@ -141,7 +141,7 @@ func checkSearchHash(c *bm.Context) {
 		return
 	}
 	if event := svc.EventByParam(p.Hash); event != nil {
-		c.JSON(map[string]interface{}{"hash_type": "event", "data": event}, nil)
+		c.JSON(map[string]interface{}{"hash_type": "evm", "extrinsic_index": fmt.Sprintf("%d-%d", event.BlockNum, event.ExtrinsicIdx)}, nil)
 		return
 	}
 	c.JSON(nil, util.RecordNotFound)
