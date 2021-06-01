@@ -1,0 +1,228 @@
+{
+  "Weight": "u64",
+  "CompactAssignments": "CompactAssignmentsLatest",
+  "RefCount": "u32",
+  "Box<<T as Config>::Call>": "Call",
+  "Box<Xcm<Call>>": "Call",
+  "RelayChainAccountId": "H256",
+  "DispatchInfo": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "weight",
+        "Weight"
+      ],
+      [
+        "class",
+        "DispatchClass"
+      ],
+      [
+        "paysFee",
+        "Pays"
+      ]
+    ]
+  },
+  "DispatchResult": {
+    "type": "enum",
+    "type_mapping": [
+      [
+        "Ok",
+        "Null"
+      ],
+      [
+        "Error",
+        "DispatchError"
+      ]
+    ]
+  },
+  "TransactionRecoveryId": "U64",
+  "TransactionSignature": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "v",
+        "TransactionRecoveryId"
+      ],
+      [
+        "r",
+        "H256"
+      ],
+      [
+        "s",
+        "H256"
+      ]
+    ]
+  },
+  "Address": "AccountId",
+  "LookupSource": "AccountId",
+  "RoundIndex": "u32",
+  "SettingStruct": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "bond_duration",
+        "u32"
+      ],
+      [
+        "blocks_per_round",
+        "u32"
+      ],
+      [
+        "desired_target",
+        "u32"
+      ]
+    ]
+  },
+  "Bond": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "owner",
+        "AccountId"
+      ],
+      [
+        "amount",
+        "Balance"
+      ]
+    ]
+  },
+  "UnBondChunk": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "value",
+        "Balance"
+      ],
+      [
+        "round",
+        "u32"
+      ]
+    ]
+  },
+  "StakingNominators": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "nominations",
+        "Vec<Bond>"
+      ],
+      [
+        "total",
+        "Balance"
+      ],
+      [
+        "unbonding",
+        "Vec<UnBondChunk>"
+      ],
+      [
+        "claimed_rewards",
+        "Vec<RoundIndex>"
+      ]
+    ]
+  },
+  "RewardInfo": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "total_reward",
+        "Balance"
+      ],
+      [
+        "claimed_reward",
+        "Balance"
+      ],
+      [
+        "last_paid",
+        "BlockNumber"
+      ]
+    ]
+  },
+  "RoundInfo<BlockNumber>": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "index",
+        "RoundIndex"
+      ],
+      [
+        "start_in",
+        "BlockNumber"
+      ],
+      [
+        "length",
+        "u32"
+      ]
+    ]
+  },
+  "StakingCollators<AccountId, BalanceOf>": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "total",
+        "Balance"
+      ],
+      [
+        "active",
+        "Balance"
+      ],
+      [
+        "nominations",
+        "Vec<Bond>"
+      ],
+      [
+        "unlocking",
+        "Vec<UnBondChunk>"
+      ],
+      [
+        "unbonding",
+        "Vec<UnBondChunk>"
+      ],
+      [
+        "status",
+        "enum"
+      ],
+      [
+        "claimed_rewards",
+        "Vec<RoundIndex>"
+      ]
+    ]
+  },
+  "Leaving<BalanceOf>": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "remaining",
+        "Balance"
+      ],
+      [
+        "unbonding",
+        "Vec<UnBondChunk>"
+      ],
+      [
+        "when",
+        "RoundIndex"
+      ]
+    ]
+  },
+  "StakingNominators<AccountId, BalanceOf>": {
+    "type": "struct",
+    "type_mapping": [
+      [
+        "nominations",
+        "Vec<Bond>"
+      ],
+      [
+        "total",
+        "Balance"
+      ],
+      [
+        "unbonding",
+        "Vec<UnBondChunk>"
+      ],
+      [
+        "claimed_rewards",
+        "Vec<RoundIndex>"
+      ]
+    ]
+  }
+}

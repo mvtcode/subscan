@@ -111,3 +111,13 @@ func (d *Dao) GetEventByIdx(index string) *model.ChainEvent {
 	}
 	return &Event
 }
+
+func (d *Dao) GetEventByParam(param string) *model.ChainEventJson {
+	var Event model.ChainEventJson
+	query := d.db.Model(model.ChainEvent{}).
+		Where("params like ?", "%" + param + "%").Scan(&Event)
+	if query == nil || query.RecordNotFound() {
+		return nil
+	}
+	return &Event
+}

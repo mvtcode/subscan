@@ -33,6 +33,7 @@ type IDao interface {
 	GetEventList(page, row int, order string, where ...string) ([]model.ChainEvent, int)
 	GetEventsByIndex(extrinsicIndex string) []model.ChainEvent
 	GetEventByIdx(index string) *model.ChainEvent
+	GetEventByParam(param string) *model.ChainEventJson
 	CreateExtrinsic(c context.Context, txn *GormDB, extrinsic *model.ChainExtrinsic) error
 	DropExtrinsicNotFinalizedData(c context.Context, blockNum int, finalized bool) bool
 	GetExtrinsicsByBlockNum(blockNum int) []model.ChainExtrinsicJson

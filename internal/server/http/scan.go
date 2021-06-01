@@ -140,6 +140,10 @@ func checkSearchHash(c *bm.Context) {
 		c.JSON(map[string]string{"hash_type": "extrinsic"}, nil)
 		return
 	}
+	if event := svc.EventByParam(p.Hash); event != nil {
+		c.JSON(map[string]interface{}{"hash_type": "event", "data": event}, nil)
+		return
+	}
 	c.JSON(nil, util.RecordNotFound)
 }
 

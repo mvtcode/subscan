@@ -230,6 +230,10 @@ func (s *Service) EventByIndex(index string) *model.ChainEvent {
 	return s.dao.GetEventByIdx(index)
 }
 
+func (s *Service) EventByParam(param string) *model.ChainEventJson {
+	return s.dao.GetEventByParam(param)
+}
+
 func (s *Service) GetBlockByNum(num int) *model.ChainBlockJson {
 	c := context.TODO()
 	block := s.dao.GetBlockByNum(num)
