@@ -53,12 +53,14 @@ export default {
 
   axios: {
     proxy: process.env.NODE_ENV !== 'production',
-    browserBaseURL: process.env.NODE_ENV !== 'production' ? "" : "http://127.0.0.1:4399"
+    browserBaseURL: process.env.NODE_ENV !== 'production' ? "" : "http://172.16.10.29:4399"
   },
-
+  server: {
+    host: "0.0.0.0"
+  },
   proxy: {
     "/api": {
-      target: "http://127.0.0.1:4399", // 接口的域名
+      target: "http://172.16.10.29:4399", // 接口的域名
       secure: false,
       changeOrigin: true,
       pathRewrite: {

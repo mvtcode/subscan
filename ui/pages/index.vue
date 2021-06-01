@@ -14,6 +14,7 @@
                   :placeholder="$t('search_placeholder')"
                 >
                   <el-option :label="$t('block')" value="block"></el-option>
+                  <el-option :label="$t('tx-hash')" value="tx-hash"></el-option>
                   <el-option :label="$t('extrinsic')" value="extrinsic"></el-option>
                   <el-option :label="$t('runtime')" value="runtime"></el-option>
                 </el-select>
@@ -29,8 +30,23 @@
           <el-main class="output">
             <div class="title">{{$t('output')}}</div>
             <client-only>
-              <!-- comments 组件只会在客户端被渲染 -->
               <json-pretty class="output-json" v-if="output" :data="output"></json-pretty>
+            </client-only>
+          </el-main>
+        </div>
+      </el-container>
+      <el-container direction="horizontal" class="main" v-show="input && input.type && input.type === 'tx-hash'">
+        <div class="main-content">
+        <el-main class="output">
+            <div class="title">Block Detail</div>
+            <client-only>
+              <json-pretty class="output-json" v-if="block_output" :data="block_output"></json-pretty>
+            </client-only>
+          </el-main>
+           <el-main class="output">
+            <div class="title">Extrinsic Detail</div>
+            <client-only>
+              <json-pretty class="output-json" v-if="extrinsic_output" :data="extrinsic_output"></json-pretty>
             </client-only>
           </el-main>
         </div>
@@ -56,16 +72,37 @@ export default {
         content: "",
       },
       output: "",
+      block_output: "",
+      extrinsic_output: "",
     };
   },
   methods: {
     async onSubmit() {
+      this.block_output = ""
+      this.extrinsic_output = ""
       let payload = {};
       let result;
       if (!this.input.content) {
         return;
       }
-      if (this.input.type === "block") {
+      if (this.input.type === "tx-hash") {
+        const reg = /^[0-9]+$/;
+        const isNum = reg.test(this.input.content);
+        if (isNum) {
+          alert('invalid hash format')
+        } else {
+          payload = {
+            hash: this.input.content,
+          };
+        }
+        result = await this.$axios.$post("/api/scan/check_hash", payload);
+        if (result.data && result.data.data && result.data.data.block_num) {
+          this.block_output = await this.$axios.$post("/api/scan/block", {block_num: result.data.data.block_num});
+        }
+        if (result.data && result.data.data && result.data.data.block_num && result.data.data.extrinsic_idx ) {
+          this.extrinsic_output = await this.$axios.$post("/api/scan/extrinsic", {extrinsic_index: `${result.data.data.block_num}-${result.data.data.extrinsic_idx}`});
+        }
+      } else if (this.input.type === "block") {
         const reg = /^[0-9]+$/;
         const isNum = reg.test(this.input.content);
         if (isNum) {
