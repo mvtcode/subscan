@@ -32,6 +32,7 @@ func (s *Service) CreateChainBlock(conn websocket.WsConn, hash string, block *rp
 	if err != nil {
 		log.Error("%v", err)
 	}
+	log.Info("extrinsic hash: %v", decodeExtrinsics[0]["extrinsic_hash"])
 
 	// event
 	if err == nil {

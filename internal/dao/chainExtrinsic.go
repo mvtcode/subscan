@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"encoding/json"
+	"github.com/go-kratos/kratos/pkg/log"
 	"github.com/itering/subscan/model"
 	"github.com/itering/subscan/util"
 	"github.com/itering/subscan/util/address"
@@ -10,6 +11,7 @@ import (
 )
 
 func (d *Dao) CreateExtrinsic(c context.Context, txn *GormDB, extrinsic *model.ChainExtrinsic) error {
+	log.Info("extrinsic hash: %v", extrinsic.ExtrinsicHash)
 	ce := model.ChainExtrinsic{
 		BlockTimestamp:     extrinsic.BlockTimestamp,
 		ExtrinsicIndex:     extrinsic.ExtrinsicIndex,
