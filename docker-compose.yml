@@ -1,40 +1,99 @@
-version: "2.4"
+version: "3"
 
 services:
+  mysql:
+    image: mysql:5.7.34
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      # MYSQL_USER: docker
+      MYSQL_PASSWORD: 123456
+      MYSQL_DATABASE: subscan
+    # ports:
+    #   - '3306:3306'
+    volumes:
+      - data_db:/var/lib/mysql
+    networks:
+      app_net:
+        ipv4_address: 172.107.1.2
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    # healthcheck:
+    #   # test: ["CMD", "mysql", "-u", "root", "-p123456"]
+    #   test: ["CMD-SHELL", "mysql -u root -p123456"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+  redis:
+    image: redis:6.0.13-alpine
+    # ports:
+    #   - '6359:6379'
+    # volumes:
+    #   - ./data/redis:/data
+    networks:
+      app_net:
+        ipv4_address: 172.107.1.3
+
   subscan-api:
     build: .
     image: subscan/api
     environment: &app_base
-      MYSQL_HOST: mysql
-      MYSQL_PASS: 'helloload'
-      MYSQL_DB: 'subscan'
-      REDIS_ADDR: redis:6379
-      CHAIN_WS_ENDPOINT: 'wss://rpc.polkadot.io'
-      NETWORK_NODE: 'polkadot'
-      WEB_HOST: 'http://subscan-api:4399'
+      MYSQL_HOST: 172.107.1.2
+      MYSQL_USER: root
+      MYSQL_PASS: 123456
+      MYSQL_DB: subscan
+      REDIS_ADDR: 172.107.1.3:6379
+      # CHAIN_WS_ENDPOINT: 'ws://172.107.1.1:9944'
+      # CHAIN_WS_ENDPOINT: 'wss://rpc.polkadot.io'
+      CHAIN_WS_ENDPOINT: 'wss://halongbay.polkafoundry.com'
+      # NETWORK_NODE: 'polkadot'
+      NETWORK_NODE: 'halongbay'
+      # NETWORK_NODE: 'halong'
+      WEB_HOST: 'http://172.107.1.4'
       DEPLOY_ENV: 'prod'
-    ports:
-      - '4399:4399'
+    # ports:
+    #   - '4399:4399'
+    depends_on:
+      - redis
+      - mysql
+        # condition: service_healthy
+    command: sh -c "sleep 10 && /subscan/cmd/subscan"
     networks:
-      - app_net
-  subscan-observer:
-    environment:
-      <<: *app_base
-    image: subscan/api
-    command: ["python","run.py","substrate"]
-    networks:
-      - app_net
+      app_net:
+        ipv4_address: 172.107.1.4
 
-  subscan-static:
+  subscan-observer:
+    environment: *app_base
+    image: subscan/api
+    # command: ["python","run.py","substrate"]
+    command: sh -c "sleep 10 && python run.py substrate"
+    depends_on:
+      - redis
+      - mysql
+    networks:
+      app_net:
+        ipv4_address: 172.107.1.5
+
+  subscan-ui:
     build:
       context: ./ui
     environment:
       NODE_ENV: 'production'
-    ports:
-      - '80:80'
+    # ports:
+    #   - '80:80'
+    depends_on:
+      - subscan-api
     networks:
-      - app_net
+      app_net:
+        ipv4_address: 172.107.1.6
 
 networks:
   app_net:
-    external: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.107.1.0/24
+
+volumes:
+  data_db:
