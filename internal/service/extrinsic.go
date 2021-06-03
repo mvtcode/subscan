@@ -1,14 +1,17 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/centrifuge/go-substrate-rpc-client/scale"
 	"github.com/itering/subscan/internal/dao"
 	"github.com/itering/subscan/model"
 	"github.com/itering/subscan/util"
 	"github.com/itering/subscan/util/address"
 	"github.com/shopspring/decimal"
+	"golang.org/x/crypto/blake2b"
 	"strings"
 )
 
@@ -51,6 +54,8 @@ func (s *Service) createExtrinsic(c context.Context,
 
 			extrinsicFee[extrinsic.ExtrinsicIndex] = fee
 			hash[extrinsic.ExtrinsicIndex] = extrinsic.ExtrinsicHash
+		} else {
+			hash[extrinsic.ExtrinsicIndex], _ = GetHash(extrinsic)
 		}
 
 		if err = s.dao.CreateExtrinsic(c, txn, &extrinsic); err == nil {
@@ -114,4 +119,23 @@ func (s *Service) getExtrinsicSuccess(e []model.ChainEvent) bool {
 		}
 	}
 	return true
+}
+
+func GetHash(value interface{}) (string, error) {
+	enc, err := EncodeToBytes(value)
+	if err != nil {
+		return "", err
+	}
+	src := blake2b.Sum256(enc)
+
+	return fmt.Sprintf("0x%x", src), err
+}
+
+func EncodeToBytes(value interface{}) ([]byte, error) {
+	var buffer = bytes.Buffer{}
+	err := scale.NewEncoder(&buffer).Encode(value)
+	if err != nil {
+		return buffer.Bytes(), err
+	}
+	return buffer.Bytes(), nil
 }
