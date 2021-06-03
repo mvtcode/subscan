@@ -5,6 +5,7 @@
   "Box<<T as Config>::Call>": "Call",
   "Box<Xcm<Call>>": "Call",
   "RelayChainAccountId": "H256",
+  "ExtrinsicSignature": "EthereumSignature",
   "DispatchInfo": {
     "type": "struct",
     "type_mapping": [

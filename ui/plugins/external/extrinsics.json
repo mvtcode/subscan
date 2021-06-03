@@ -1,0 +1,39 @@
+{
+  "type": "page",
+  "body": {
+    "type": "crud",
+    "api": {
+      "method": "post",
+      "url": "api/scan/extrinsics",
+      "requestAdaptor": "return { ...api, data: { ...api.data,  page: api.data.page - 1,  row: api.data.perPage} }",
+      "adaptor": "return {...payload, status: payload.code, data: { items: payload.data.extrinsics, count: payload.data.count  }, msg: payload.message };"
+    },
+    "syncLocation": false,
+    "headerToolbar": [],
+    "columns": [{
+      "name": "block_num",
+      "label": "block num"
+      },
+      {
+        "name": "extrinsic_index",
+        "label": "extrinsic index"
+      },
+      {
+        "name": "block_timestamp",
+        "label": "block timestamp"
+      },
+      {
+        "name": "call_module",
+        "label": "module"
+      },
+      {
+        "name": "call_module_function",
+        "label": "function"
+      },
+      {
+        "name": "success",
+        "label": "status"
+      }
+    ]
+  }
+}

@@ -16,6 +16,12 @@
               <router-link to="/blocks" tag="a">blocks</router-link>
             </el-dropdown-item>
             <el-dropdown-item>
+              <router-link to="/extrinsics" tag="a">extrinsics</router-link>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <router-link to="/transfers" tag="a">transfers</router-link>
+            </el-dropdown-item>
+            <el-dropdown-item>
               <router-link to="/events" tag="a">events</router-link>
             </el-dropdown-item>
             <el-dropdown-item

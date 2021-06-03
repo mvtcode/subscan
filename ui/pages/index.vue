@@ -1,34 +1,32 @@
 <template>
   <div class="app-wrapper">
-    <el-container direction="vertical">
-      <nav-bar />
-      <el-container direction="horizontal" class="main">
-        <div class="main-content">
-          <el-main class="input">
-            <div class="title">{{$t('search_title')}}</div>
-            <el-form :model="input" class="demo-form-inline" label-position="top">
-              <el-form-item :label="$t('search_type')">
+    <el-container direction="vertical" align="center" style="align-items: center;">
+      <nav-bar style="width: 100%" />
+      <div class="search-bar" align="center" >
+            <el-form :model="input" class="form-inline">
+              <el-form-item style="width: 150px;" v-on:submit.prevent="onSubmit">
                 <el-select
                   class="select"
                   v-model="input.type"
-                  :placeholder="$t('search_placeholder')"
                 >
+                  <el-option :label="$t('All')" selected value="all"></el-option>
                   <el-option :label="$t('block')" value="block"></el-option>
                   <el-option :label="$t('tx-hash')" value="tx-hash"></el-option>
                   <el-option :label="$t('extrinsic')" value="extrinsic"></el-option>
                   <el-option :label="$t('runtime')" value="runtime"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('search_content')">
-                <el-input v-model="input.content"></el-input>
+              <el-form-item style="width: inherit;">
+                <el-input v-model="input.content" placeholder="Search by Block / Extrinsic / Tx Hash" @keyup.enter.native="onSubmit"></el-input>
               </el-form-item>
-              <el-form-item>
+              <el-form-item style="width: 100px">
                 <el-button type="primary" @click="onSubmit">{{$t('search')}}</el-button>
               </el-form-item>
             </el-form>
-          </el-main>
+        </div>
+      <el-container direction="horizontal" class="main" >
+        <div class="main-content">
           <el-main class="output">
-            <div class="title">{{$t('output')}}</div>
             <client-only>
               <json-pretty class="output-json" v-if="output" :data="output"></json-pretty>
             </client-only>
@@ -68,7 +66,7 @@ export default {
   data() {
     return {
       input: {
-        type: "",
+        type: "all",
         content: "",
       },
       output: "",
@@ -85,22 +83,62 @@ export default {
       if (!this.input.content) {
         return;
       }
+
+      if (this.input.type == 'all') {
+        const hashreg = /^0x[a-f0-9]+$/;
+        const isHash = hashreg.test(this.input.content);
+        if (isHash) {
+          result = await this.$axios.$post("/api/scan/check_hash", {hash: this.input.content});
+          if (!result || !result.data || !result.data.hash_type ) {
+            this.output = {result: result}
+            return
+          }
+          if (result.data.hash_type === "block" ) {
+            this.output =  await this.$axios.$post("/api/scan/block", {block_hash: this.input.content});
+            return
+          }
+
+          if (result.data.hash_type === "extrinsic" ) {
+            this.output =  await this.$axios.$post("/api/scan/extrinsic", {hash: this.input.content});
+            return
+          }
+
+          this.output = await this.$axios.$post("/api/scan/extrinsic", {extrinsic_index: result.data.extrinsic_index});            
+          return
+        }
+
+        const numreg = /^[0-9]+$/;
+        const isNum = numreg.test(this.input.content);
+        if (isNum) {
+          this.output =  await this.$axios.$post("/api/scan/block", {block_num: parseInt(this.input.content)});
+          return
+        }
+
+        const indexreg = /^[0-9]+-[0-9]+$/;
+        const isIndex = indexreg.test(this.input.content);
+        if (isIndex) {
+          this.output =  await this.$axios.$post("/api/scan/extrinsic", {extrinsic_index: this.input.content});
+          return
+        }
+
+        this.output = {result: "Invalid data input"}
+        return
+      }
+
       if (this.input.type === "tx-hash") {
         const reg = /^[0-9]+$/;
         const isNum = reg.test(this.input.content);
         if (isNum) {
-          alert('invalid hash format')
+          this.output = {result: "Invalid data input"}
+          return
         } else {
           payload = {
             hash: this.input.content,
           };
         }
         result = await this.$axios.$post("/api/scan/check_hash", payload);
-        if (result.data && result.data.data && result.data.data.block_num) {
-          this.block_output = await this.$axios.$post("/api/scan/block", {block_num: result.data.data.block_num});
-        }
-        if (result.data && result.data.data && result.data.data.block_num && result.data.data.extrinsic_idx ) {
-          this.extrinsic_output = await this.$axios.$post("/api/scan/extrinsic", {extrinsic_index: `${result.data.data.block_num}-${result.data.data.extrinsic_idx}`});
+        if (result && result.data && result.data.extrinsic_index ) {
+          result = await this.$axios.$post("/api/scan/extrinsic", {extrinsic_index: result.data.extrinsic_index});
         }
       } else if (this.input.type === "block") {
         const reg = /^[0-9]+$/;
@@ -149,9 +187,19 @@ export default {
   .main {
     padding: 0 20px;
   }
+  .search-bar {
+    width: 100%;
+    margin: 20px;
+    max-width: 800px;
+  }
+  .form-inline {
+    display: flex;
+    width: 100%;
+  }
   .main-content {
     margin: 0 auto;
-    width: 1180px;
+    width: 100%;
+    max-width: 800px;
     display: flex;
   }
   .select {
@@ -163,6 +211,7 @@ export default {
   .input,
   .output {
     width: 50%;
+    text-align: left;
     padding: 20px 20px 0 0;
   }
   .output-json {
